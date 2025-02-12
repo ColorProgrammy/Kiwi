@@ -1,0 +1,104 @@
+set board0 " "
+set board1 " "
+set board2 " "
+set board3 " "
+set board4 " "
+set board5 " "
+set board6 " "
+set board7 " "
+set board8 " "
+set current_player "X"
+set game_over "false"
+
+func print_board
+    print "-------------"
+    print "| {{board0}} | {{board1}} | {{board2}} |"
+    print "-------------"
+    print "| {{board3}} | {{board4}} | {{board5}} |"
+    print "-------------"
+    print "| {{board6}} | {{board7}} | {{board8}} |"
+    print "-------------"
+endfunc
+
+func check_win
+    set win "false"
+    
+    # Check rows
+    if {{board0}} == {{current_player}} && {{board1}} == {{current_player}} && {{board2}} == {{current_player}}
+        set win "true"
+    endif
+    if {{board3}} == {{current_player}} && {{board4}} == {{current_player}} && {{board5}} == {{current_player}}
+        set win "true"
+    endif
+    if {{board6}} == {{current_player}} && {{board7}} == {{current_player}} && {{board8}} == {{current_player}}
+        set win "true"
+    endif
+    
+    # Check columns
+    if {{board0}} == {{current_player}} && {{board3}} == {{current_player}} && {{board6}} == {{current_player}}
+        set win "true"
+    endif
+    if {{board1}} == {{current_player}} && {{board4}} == {{current_player}} && {{board7}} == {{current_player}}
+        set win "true"
+    endif
+    if {{board2}} == {{current_player}} && {{board5}} == {{current_player}} && {{board8}} == {{current_player}}
+        set win "true"
+    endif
+    
+    # Check diagonals
+    if {{board0}} == {{current_player}} && {{board4}} == {{current_player}} && {{board8}} == {{current_player}}
+        set win "true"
+    endif
+    if {{board2}} == {{current_player}} && {{board4}} == {{current_player}} && {{board6}} == {{current_player}}
+        set win "true"
+    endif
+    
+    if {{win}} == "true"
+        set game_over "true"
+    endif
+endfunc
+
+func play_move
+    loop
+        print "Игрок {{current_player}}, введите номер поля (0-8):"
+        input pos
+        
+        if {{pos}} < 0 || {{pos}} > 8
+            print "Неверный ввод! Введите число от 0 до 8"
+            continue
+        endif
+        
+        set field "board{{pos}}"
+        if {{field}} == " "
+            set {{field}} {{current_player}}
+            break
+        else
+            print "Поле занято"
+            continue
+        endif
+    endloop
+endfunc
+
+func switch_player
+    if {{current_player}} == "X"
+        set current_player "O"
+    else
+        set current_player "X"
+    endif
+endfunc
+
+main
+    loop
+        call print_board
+        call play_move
+        call check_win
+        
+        if {{game_over}} == "true"
+            call print_board
+            print "Игрок {{current_player}} победил!"
+            exit
+        endif
+        
+        call switch_player
+    endloop
+endfunc
