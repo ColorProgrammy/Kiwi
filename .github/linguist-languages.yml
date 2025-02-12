@@ -1,6 +1,5 @@
 languages:
   Kiwi:
     type: programming
-    extensions:
-      - .kiwi 
+    extensions: [".kiwi"]
     color: '#388E3C'
