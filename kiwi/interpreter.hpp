@@ -21,7 +21,7 @@ private:
     int safe_stoi(const std::string& s) {
         if (s.empty()) throw std::invalid_argument("Empty string");
         for (char c : s) {
-            if (!isdigit(c) throw std::invalid_argument("Invalid number");
+            if (!isdigit(c)) throw std::invalid_argument("Invalid number");
         }
         return std::stoi(s);
     }
@@ -33,21 +33,30 @@ private:
     }
 
     std::string parse_string(const std::string& text) {
-        std::string result;
+        std::string result = text;
         size_t pos = 0;
-        while (pos < text.size()) {
-            if (text[pos] == '{' && pos + 1 < text.size() && text[pos+1] == '{') {
-                pos += 2;
-                std::string var_name;
-                while (pos < text.size() && text[pos] != '}') {
-                    var_name += text[pos++];
-                }
-                if (pos < text.size()) pos++;
-                var_name.erase(0, var_name.find_first_not_of(" \t"));
-                var_name.erase(var_name.find_last_not_of(" \t") + 1);
-                result += get_var_value(var_name);
+        
+        while ((pos = result.find("{{", pos)) != std::string::npos) {
+            
+            size_t end_pos = result.find("}}", pos);
+            
+            if (end_pos == std::string::npos) break;
+            std::string var_name = result.substr(
+                pos + 2,
+                end_pos - pos - 2
+                );
+                
+            var_name.erase(0, var_name.find_first_not_of(" \t"));
+            var_name.erase(var_name.find_last_not_of(" \t") + 1);
+            
+            if (variables.find(var_name) != variables.end()) {
+            	result.replace(
+            	    pos,
+            	    end_pos - pos + 2,
+            	    variables[var_name]
+            	);
             } else {
-                result += text[pos++];
+            	result.erase(pos, end_pos - pos + 2);
             }
         }
         return result;
@@ -97,8 +106,10 @@ private:
         }
         else if (cmd == "print") {
             std::string text;
-            std::getline(iss >> std::ws, text);
-            std::cout << parse_string(text) << std::endl;
+            getline(iss >> std::ws, text);
+            
+            text = parse_string(text);
+            std::cout << text << std::endl;
         }
         else if (cmd == "input") {
             std::string var;
