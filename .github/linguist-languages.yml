@@ -1,0 +1,6 @@
+languages:
+  Kiwi:
+    type: programming
+    extensions:
+      - .kiwi 
+    color: '#388E3C'
