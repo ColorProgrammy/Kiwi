@@ -3,7 +3,7 @@
 
 int main() {
     KiwiInterpreter interpreter;
-    std::ifstream file("tictactoe.kiwi");
+    std::ifstream file("script.kiwi");
     std::vector<std::string> lines;
     std::string line;
     
