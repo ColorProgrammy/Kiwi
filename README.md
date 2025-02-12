@@ -15,7 +15,7 @@ Kiwi is a lightweight and intuitive scripting language focused on providing a st
 
 **License:**
 
-Kiwi is released under the `Apache License 2.0`. See the `LICENSE` file for the full license text.
+Kiwi is released under the `Apache-2.0 License`. See the `LICENSE` file for the full license text.
 
 **Installation & Usage:**
 
@@ -30,14 +30,21 @@ Kiwi is released under the `Apache License 2.0`. See the `LICENSE` file for the 
 
     ```c++
     #include "kiwi/interpreter.hpp"
+    #include <fstream>
 
     int main() {
         KiwiInterpreter interpreter;
-        std::vector<std::string> script_lines = {
-            "print \"Hello, Kiwi!\""
-        };
-        interpreter.load_script(script_lines);
+        std::ifstream file("script.kiwi");
+        std::vector<std::string> lines;
+        std::string line;
+    
+        while (std::getline(file, line)) {
+            lines.push_back(line);
+        }
+    
+        interpreter.load_script(lines);
         interpreter.run();
+    
         return 0;
     }
     ```
