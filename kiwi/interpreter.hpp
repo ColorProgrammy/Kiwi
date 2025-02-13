@@ -90,8 +90,13 @@ public:
             std::string cmd;
             if (iss >> cmd && cmd == "func") {
                 std::string func_name;
+                
+                skip_mode = true;
+                skip_depth = 1;
+                
                 if (iss >> func_name) {
                     function_locations[func_name] = i;
+
                 }
             }
         }
@@ -112,8 +117,8 @@ public:
 
 private:
     size_t find_matching_end(const std::string& start_cmd, const std::string& end_cmd) {
-        int depth = 1;
-        for (size_t i = current_line + 1; i < script_lines.size(); ++i) {
+        int depth = 0;
+        for (size_t i = current_line; i < script_lines.size(); ++i) {
             std::string line = script_lines[i];
             if (line.find("//") == 0) continue;
             std::istringstream iss(line);
@@ -135,6 +140,9 @@ private:
         }
         if (skip_mode) {
             if (clean_cmd.find("endif") != std::string::npos) {
+                if (--skip_depth == 0) skip_mode = false;
+            }
+            else if (clean_cmd.find("endfunc") != std::string::npos) {
                 if (--skip_depth == 0) skip_mode = false;
             }
             else if (clean_cmd.find("if") == 0 || clean_cmd.find("else") == 0) {
@@ -169,20 +177,48 @@ private:
         else if (cmd == "call") {
             std::string func_name;
             iss >> func_name;
+            
             if (function_locations.count(func_name)) {
-                size_t return_line = current_line + 1;
-                size_t func_start = function_locations[func_name];
-                size_t func_end = find_matching_end("func", "endfunc");
-                call_stack.push(return_line);
-                current_line = func_start;
-                while (current_line < func_end) {
-                    execute(script_lines[current_line]);
-                    current_line++;
+                
+                call_stack.push(current_line + 1);
+                
+                current_line = function_locations[func_name];
+                
+                size_t end_func_line = -1;
+                
+                for (size_t i = current_line + 1; i < script_lines.size(); ++i) {
+                	std::istringstream iss_end (script_lines[i]);
+                	
+                	std::string cmd_end;
+                	iss_end >> cmd_end;
+                	
+                	if (cmd_end == "endfunc") {
+                		end_func_line = i;
+
+                		break;
+                	}
                 }
-                current_line = call_stack.top();
-                call_stack.pop();
+                
+                if (end_func_line != -1) {
+                	size_t func_start = current_line + 1;
+                    while (func_start < end_func_line) {
+                   execute(script_lines[func_start]);
+                        func_start++;
+                    }
+                	current_line = call_stack.top();
+                    call_stack.pop();
+                    
+                    
+                } else {
+                	std::cerr <<"Error: Missing 'endfunc' for function " << func_name << std::endl;
+                	return;
+                }    
+                
+            } else {
+            	std::cerr << "Error: Function '" << func_name << "' not found." << std::endl;
             }
         }
+        
         else if (cmd == "loop") {
             loop_stack.push(current_line);
         }
@@ -199,7 +235,8 @@ private:
                 skip_mode = true;
                 skip_depth = 1;
             }
-            if_stack.push(find_matching_end("if", "endif"));
+            size_t endif_pos = find_matching_end("if", "endif");
+            if_stack.push(endif_pos);
         }
         else if (cmd == "else") {
             skip_mode = true;
@@ -208,7 +245,11 @@ private:
             if_stack.pop();
         }
         else if (cmd == "endif") {
-            if_stack.pop();
+            if (!if_stack.empty()) {
+
+                if_stack.pop();
+            
+            }
         }
         else if (cmd == "break") {
             if (!loop_stack.empty()) {
