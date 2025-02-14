@@ -1,0 +1,10 @@
+// An example of using variables 
+// in the Kiwi language
+
+// We will try to print a string using a variable.
+
+// We use double curly braces to 
+// refer to a variable.
+
+set value what's up?
+print Oh, {{value}}
