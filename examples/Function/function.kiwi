@@ -1,0 +1,13 @@
+// Example of using functions 
+// in Kiwi language
+
+// We will try to output the string 
+// "The quick brown fox jumps over the lazy dog"
+
+// Function
+func sentence
+    print The quick brown fox jumps over the lazy dog
+endfunc
+
+// Calling the function
+call sentence
