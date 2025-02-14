@@ -1,0 +1,8 @@
+// An example of using input 
+// in the Kiwi language
+
+// We will try to input a string and 
+// then output it again.
+
+input string
+print You entered: "{{string}}".
