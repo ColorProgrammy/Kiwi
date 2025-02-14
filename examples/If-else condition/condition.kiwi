@@ -1,0 +1,10 @@
+// An example of using conditions 
+// in the Kiwi language
+
+set value 11
+
+if value > 9
+  print Number greater than 10
+else
+  print Number less than 10
+endif
